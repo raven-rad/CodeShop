@@ -49,3 +49,32 @@ header {
     cursor: pointer;
     width: 100%;
 }
+
+
+.request-form {
+    margin-top: 15px;
+    display: none;
+}
+
+.request-form.visible {
+    display: block;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-button {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
