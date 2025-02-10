@@ -1,62 +1,87 @@
+// app.js
 document.addEventListener('DOMContentLoaded', () => {
-    const products = [
+    const services = [
         {
-            title: "Responsive Navigation",
-            code: `<nav class="navbar">
-    <div class="logo">Logo</div>
-    <ul class="nav-links">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Services</a></li>
-    </ul>
-</nav>`,
-            price: 9.99,
-            id: "price_1PMykZDwN3d2D0T2h6t4X6Kk"
+            title: "Web Development",
+            languages: ["HTML/CSS", "JavaScript", "PHP", "Python"],
+            price: "Starting at $50"
         },
         {
-            title: "Login Form",
-            code: `<form class="login-form">
-    <input type="email" placeholder="Email">
-    <input type="password" placeholder="Password">
-    <button type="submit">Login</button>
-</form>`,
-            price: 7.99,
-            id: "price_1PMykZDwN3d2D0T2h6t4X6Kl"
+            title: "Mobile App Development",
+            languages: ["React Native", "Flutter", "Swift", "Kotlin"],
+            price: "Starting at $100"
         }
     ];
 
     const container = document.querySelector('.products-container');
     
-    products.forEach(product => {
+    services.forEach(service => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-            <h2>${product.title}</h2>
-            <div class="code-preview">${product.code}</div>
-            <div class="price">$${product.price}</div>
-            <button class="buy-button" data-price-id="${product.id}">Purchase</button>
+            <h2>${service.title}</h2>
+            <div class="price">${service.price}</div>
+            <div class="languages">${service.languages.join(', ')}</div>
+            <button class="avail-button">Avail Now</button>
+            <form class="request-form">
+                <input type="email" class="form-input" placeholder="Your Email" required>
+                <input type="text" class="form-input" placeholder="Project Name" required>
+                <textarea class="form-input" placeholder="Project Description" rows="4" required></textarea>
+                <select class="form-input" required>
+                    <option value="">Select Language</option>
+                    ${service.languages.map(lang => `<option>${lang}</option>`).join('')}
+                </select>
+                <button type="submit" class="submit-button">Send Request</button>
+            </form>
         `;
         container.appendChild(card);
     });
 
-    // Stripe integration
-    const stripe = Stripe('pk_test_51PMykZDwN3d2D0T2Jt4X6Kk'); // Replace with your key
-    
-    document.querySelectorAll('.buy-button').forEach(button => {
-        button.addEventListener('click', async () => {
-            const priceId = button.dataset.priceId;
+    document.querySelectorAll('.avail-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const form = button.nextElementSibling;
+            button.style.display = 'none';
+            form.classList.add('visible');
+        });
+    });
+
+    document.querySelectorAll('.request-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const serviceTitle = form.closest('.product-card').querySelector('h2').textContent;
+
+            const discordPayload = {
+                content: `New Code Request: ${serviceTitle}`,
+                embeds: [{
+                    fields: [
+                        { name: "Email", value: formData.get('email') },
+                        { name: "Project Name", value: formData.get('project-name') },
+                        { name: "Description", value: formData.get('project-description') },
+                        { name: "Language", value: formData.get('language') }
+                    ],
+                    color: 0x3498db
+                }]
+            };
+
             try {
-                const response = await fetch('http://localhost:3000/create-checkout-session', {
+                const response = await fetch('YOUR_DISCORD_WEBHOOK_URL', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ priceId }),
+                    body: JSON.stringify(discordPayload)
                 });
-                const session = await response.json();
-                await stripe.redirectToCheckout({ sessionId: session.id });
+                
+                if (response.ok) {
+                    alert('Request submitted! We\'ll contact you within 24 hours.');
+                    form.reset();
+                    form.classList.remove('visible');
+                    form.previousElementSibling.style.display = 'block';
+                }
             } catch (error) {
                 console.error('Error:', error);
+                alert('Error submitting request. Please try again.');
             }
         });
     });
