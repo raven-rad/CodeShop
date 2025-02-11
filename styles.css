@@ -25,22 +25,13 @@ header {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.code-preview {
-    background: #1e1e1e;
-    color: #d4d4d4;
-    padding: 15px;
-    border-radius: 5px;
-    font-family: monospace;
-    overflow-x: auto;
-}
-
 .price {
     font-size: 1.5em;
     color: #2ecc71;
     margin: 15px 0;
 }
 
-.buy-button {
+.avail-button {
     background: #3498db;
     color: white;
     border: none;
@@ -50,14 +41,8 @@ header {
     width: 100%;
 }
 
-
-.request-form {
+.transaction-form {
     margin-top: 15px;
-    display: none;
-}
-
-.request-form.visible {
-    display: block;
 }
 
 .form-input {
