@@ -23,42 +23,43 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="price">${service.price}</div>
             <div class="languages">${service.languages.join(', ')}</div>
             <button class="avail-button">Avail Now</button>
-            <form class="request-form">
-                <input type="email" class="form-input" placeholder="Your Email" required>
-                <input type="text" class="form-input" placeholder="Project Name" required>
-                <textarea class="form-input" placeholder="Project Description" rows="4" required></textarea>
-                <select class="form-input" required>
-                    <option value="">Select Language</option>
-                    ${service.languages.map(lang => `<option>${lang}</option>`).join('')}
-                </select>
-                <button type="submit" class="submit-button">Send Request</button>
+            <form class="transaction-form" style="display: none;">
+                <input type="text" name="contact" class="form-input" placeholder="Enter your email, Discord, or preferred contact platform" required>
+                <button type="submit" class="submit-button">Submit</button>
             </form>
         `;
         container.appendChild(card);
     });
 
+    // Toggle the transaction form on button click
     document.querySelectorAll('.avail-button').forEach(button => {
         button.addEventListener('click', () => {
             const form = button.nextElementSibling;
             button.style.display = 'none';
-            form.classList.add('visible');
+            form.style.display = 'block';
         });
     });
 
-    document.querySelectorAll('.request-form').forEach(form => {
+    // Handle form submission and send the data to Discord
+    document.querySelectorAll('.transaction-form').forEach(form => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
-            const serviceTitle = form.closest('.product-card').querySelector('h2').textContent;
+            const contactInfo = formData.get('contact');
+            const serviceCard = form.closest('.product-card');
+            const serviceTitle = serviceCard.querySelector('h2').textContent;
+            const servicePrice = serviceCard.querySelector('.price').textContent;
+            const serviceLanguages = serviceCard.querySelector('.languages').textContent;
 
+            // Create the payload for Discord
             const discordPayload = {
-                content: `New Code Request: ${serviceTitle}`,
+                content: `New Transaction Request for ${serviceTitle}`,
                 embeds: [{
                     fields: [
-                        { name: "Email", value: formData.get('email') },
-                        { name: "Project Name", value: formData.get('project-name') },
-                        { name: "Description", value: formData.get('project-description') },
-                        { name: "Language", value: formData.get('language') }
+                        { name: "Service", value: serviceTitle },
+                        { name: "Price", value: servicePrice },
+                        { name: "Languages", value: serviceLanguages },
+                        { name: "Contact Information", value: contactInfo }
                     ],
                     color: 0x3498db
                 }]
@@ -74,14 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 if (response.ok) {
-                    alert('Request submitted! We\'ll contact you within 24 hours.');
+                    alert('Transaction info submitted! We will contact you soon.');
                     form.reset();
-                    form.classList.remove('visible');
-                    form.previousElementSibling.style.display = 'block';
+                    form.style.display = 'none';
+                    serviceCard.querySelector('.avail-button').style.display = 'block';
+                } else {
+                    alert('Error submitting transaction info. Please try again.');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error submitting request. Please try again.');
+                alert('Error submitting transaction info. Please try again.');
             }
         });
     });
